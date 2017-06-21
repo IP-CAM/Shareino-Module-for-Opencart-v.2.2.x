@@ -148,14 +148,6 @@ class ControllerModuleShareino extends Controller
 
     public function destroyProducts()
     {
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "shareino_synchronize` (
-            `id` BIGINT NOT NULL AUTO_INCREMENT,
-            `product_id` BIGINT NOT NULL,
-            `date_sync` DATETIME NOT NULL,
-            `date_modified` DATETIME NOT NULL,
-             PRIMARY KEY(`id`),
-             UNIQUE(`product_id`));");
-
         //call list ids for delete
         $this->load->model('shareino/synchronize');
         $listDestroy = $this->model_shareino_synchronize->destroy();
