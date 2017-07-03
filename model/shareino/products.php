@@ -90,6 +90,7 @@ class ModelShareinoProducts extends Model
         /*
          * مدل های سیستم
          */
+        $this->load->model('setting/setting');
         $this->load->model('catalog/product');
         $this->load->model('catalog/attribute');
         $this->load->model('catalog/category');
@@ -142,7 +143,7 @@ class ModelShareinoProducts extends Model
         $productImages = array();
         foreach ($images as $image) {
             if ($image['image']) {
-                $productImages[] = 'http://' . $_SERVER['SERVER_NAME'] . '/image/' . $image['image'];
+                $productImages[] = $this->config->get('config_url') . 'image/' . $image['image'];
             }
         }
 
@@ -173,7 +174,7 @@ class ModelShareinoProducts extends Model
             'discount' => $listDiscounts,
             'quantity' => $product['quantity'],
             'weight' => $product['weight'],
-            'original_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/index.php?route=product/product&product_id=' . $product['product_id'],
+            'original_url' => $this->config->get('config_url') . 'index.php?route=product/product&product_id=' . $product['product_id'],
             'brand_id' => '',
             'categories' => $this->model_catalog_product->getProductCategories($productId),
             'short_content' => '',
@@ -181,7 +182,7 @@ class ModelShareinoProducts extends Model
             'meta_keywords' => $product['meta_keyword'],
             'meta_description' => $product['meta_description'],
             'meta_title' => $product['meta_title'],
-            'image' => 'http://' . $_SERVER['SERVER_NAME'] . '/image/' . $product['image'],
+            'image' => $this->config->get('config_url') . 'image/' . $product['image'],
             'images' => $productImages,
             'attributes' => $attributes,
             'tags' => explode(',', $product['tag']),
