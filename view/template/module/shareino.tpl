@@ -113,7 +113,6 @@
             e.preventDefault();
             messageBox.hide();
             operation = $('.sync-category').attr('data-operation');
-            console.log(operation);
             operation === '1' ? startSync('#state-btn-category', '#state-icon-category', '.sync-category') : stopSync('#state-btn-category', '#state-icon-category', '.sync-category');
             if (stop) {
                 $.ajax({

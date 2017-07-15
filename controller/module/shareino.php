@@ -95,7 +95,6 @@ class ControllerModuleShareino extends Controller
          */
         $this->destroyProducts();
         $data['countProduct'] = $this->model_shareino_products->getCount();
-        //$data['productIDs'] = $this->model_shareino_products->getAllIdes();
         $this->response->setOutput($this->load->view('module/shareino.tpl', $data));
     }
 
