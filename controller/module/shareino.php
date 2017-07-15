@@ -94,7 +94,8 @@ class ControllerModuleShareino extends Controller
          * return to view
          */
         $this->destroyProducts();
-        $data['productIDs'] = $this->model_shareino_products->getAllIdes();
+        $data['countProduct'] = $this->model_shareino_products->getCount();
+        //$data['productIDs'] = $this->model_shareino_products->getAllIdes();
         $this->response->setOutput($this->load->view('module/shareino.tpl', $data));
     }
 
@@ -110,15 +111,15 @@ class ControllerModuleShareino extends Controller
         /*
          * Send category to ShareINO
          */
-        if (isset($this->request->post['ids'])) {
+        if (isset($this->request->post['id'])) {
 
             $this->load->model('shareino/categories');
             $this->load->model('shareino/requset');
 
             $categories = $this->model_shareino_categories->getCategories();
-            $result = $this->model_shareino_requset->sendRequset("categories/sync", $categories, "POST");
+            $result = $this->model_shareino_requset->sendRequset('categories/sync', $categories, 'POST');
 
-            $this->response->setOutput($result);
+            $this->response->setOutput(json_encode($result));
         }
     }
 
@@ -132,17 +133,20 @@ class ControllerModuleShareino extends Controller
         /*
          * Send products to ShareINO
          */
-        if (isset($this->request->post['ids'])) {
+        if (isset($this->request->post['pageNumber'])) {
+
+            $pagenumber = $this->request->post['pageNumber'];
+            $limit = $this->request->post['split'];
 
             $this->response->addHeader('Content-Type: application/json');
 
             $this->load->model('shareino/products');
             $this->load->model('shareino/requset');
 
-            $products = $this->model_shareino_products->getAllProducts($this->request->post['ids'], 1);
-            $response = $this->model_shareino_requset->sendRequset("products", json_encode($products), "POST");
+            $products = $this->model_shareino_products->products($this->model_shareino_products->getIdes($limit, $pagenumber));
+            $response = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
 
-            $this->response->setOutput($response);
+            $this->response->setOutput(json_encode($response));
         }
     }
 

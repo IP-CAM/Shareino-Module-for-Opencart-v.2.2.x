@@ -100,21 +100,7 @@
         </div>
     </div>
 </div>
-
-<style type="text/css">
-    .shareino-text{
-        font-size: 14px;
-        padding: 8px;
-    }
-    .logo{
-        width:220px;
-        float:left;
-    }
-    ul{
-        padding:0;
-    }
-</style>
-
+<style type="text/css">.shareino-text{font-size:14px;padding:8px}.logo{width:220px;float:left}ul{padding:0}</style>
 <script>
     $(function() {
         var messageBox = $("#MessageBox");
@@ -122,12 +108,13 @@
         var token = $(".sync-category").attr('data-token');
         var operation = null;
         var stop = false;
-        // ارسال دسته بندی ها
+
         $('.sync-category').on('submit', function(e) {
             e.preventDefault();
             messageBox.hide();
-            operation = $('.sync-category').attr("data-operation");
-            operation === "1" ? startSync('#state-btn-category', '#state-icon-category', '.sync-category') : stopSync('#state-btn-category', '#state-icon-category', '.sync-category');
+            operation = $('.sync-category').attr('data-operation');
+            console.log(operation);
+            operation === '1' ? startSync('#state-btn-category', '#state-icon-category', '.sync-category') : stopSync('#state-btn-category', '#state-icon-category', '.sync-category');
             if (stop) {
                 $.ajax({
                     type: 'POST',
@@ -137,59 +124,50 @@
                         ajax: true,
                         controller: 'shareino',
                         action: 'syncCategory',
-                        ids: 1
+                        id: 1
                     },
                     success: function(data, textStatus, jqXHR) {
-                        if (data.status === false) {
-                            messageText.html("توکن وارد شده صحیح نمیباشد.");
-                            messageBox.show(500);
-                            messageBox.addClass('alert-danger');
-                        } else if (data.status === true) {
-                            messageText.html("دسته بندی ها شما با موفقیت به سایت شرینو ارسال شد.");
-                            messageBox.show(500);
-                            messageBox.addClass('alert-success');
-                            startSync('#state-btn-category', '#state-icon-category', '.sync-category');
-                        }
+                        startSync('#state-btn-category', '#state-icon-category', '.sync-category');
+                        message(data.status, data.message);
                     },
                     error: function(data) {
-                        messageText.html(data.data);
-                        messageBox.show(500);
-                        messageBox.addClass("alert-danger");
+                        message(false, data.message);
                     }
                 });
             }
         });
-        // ارسال محصولات
 
-        var productIDs = [<?php echo implode(',', $productIDs)?>];
-        var lenght = productIDs.length;
+        var split = 50;
+        var pageNumber = 1;
+        var countProduct = <?php echo $countProduct;?>;
+        var pageCount = Math.ceil(countProduct / split);
         var progress = $("#progress");
         var submitProgress = $("#sync-progress");
-        var progressText = $("#progressText");
-        var chunk = 50;
 
         $('.sync-products').on('submit', function(e) {
             e.preventDefault();
             messageBox.hide();
             progress.show(500);
-            operation = $('.sync-products').attr("data-operation");
+            operation = $('.sync-products').attr('data-operation');
             submitProgress.show();
             SyncProducts();
-
-            lenght = productIDs.length;
         });
 
         function SyncProducts() {
-            console.log(productIDs.length);
-            if (productIDs.length <= 0) {
-                messageText.html("تمام محصولات شما با موفقیت به سایت شرینو ارسال شد.");
-                messageBox.show(500);
-                messageBox.addClass('alert-success');
+
+            if (countProduct === 0) {
+                message(true, 'همه محصولات ارسال شده است.');
                 startSync('#state-btn-product', '#state-icon-product', '.sync-products');
                 return;
             }
-            var IDs = productIDs.splice(0, chunk);
-            operation === "1" ? startSync('#state-btn-product', '#state-icon-product', '.sync-products') : stopSync('#state-btn-product', '#state-icon-product', '.sync-products');
+
+            if (pageNumber > pageCount) {
+                message(true, 'همه محصولات به سایت شرینو ارسال شد.');
+                startSync('#state-btn-product', '#state-icon-product', '.sync-products');
+                return;
+            }
+
+            operation === '1' ? startSync('#state-btn-product', '#state-icon-product', '.sync-products') : stopSync('#state-btn-product', '#state-icon-product', '.sync-products');
             if (stop) {
                 $.ajax({
                     type: 'POST',
@@ -200,51 +178,59 @@
                         controller: 'shareino',
                         action: 'SyncProducts',
                         token: token,
-                        ids: IDs
+                        pageNumber: pageNumber,
+                        split: split
                     },
                     success: function(data) {
                         if (data.status === false) {
-                            messageText.html("توکن وارد شده صحیح نمیباشد.");
-                            messageBox.show(500);
-                            messageBox.addClass('alert-danger');
+                            if (data.code === 429) {
+                                messageText.html(data.message);
+                                messageBox.addClass('alert-warning');
+                                messageBox.show(500);
+                                setTimeout(SyncProducts, 61 * 1000);
+                            } else {
+                                message(data.status, data.message);
+                            }
                         } else {
                             setPercentage();
+                            pageNumber++;
                             SyncProducts();
                         }
                     },
                     error: function(data) {
-                        messageText.html(data.data);
-                        messageBox.show(500);
-                        messageBox.addClass("alert-danger");
+                        message(false, data.message);
                     }
                 });
             }
         }
 
         function setPercentage() {
-            var percentage = Math.round(((lenght - productIDs.length) * 100) / lenght);
+            var percentage = Math.round((100 * (pageNumber * split)) / countProduct);
             percentage = percentage > 100 ? 100 : percentage;
-            var text = " تعداد " + (lenght - productIDs.length) + " از " + lenght + " کالا ارسال شد.";
-            progressText.html(text);
             submitProgress
-                .css("width", percentage + "%")
-                .attr("aria-valuemin", percentage + "%")
-                .html(percentage + "%");
+                    .css('width', percentage + "%")
+                    .attr('aria-valuemin', percentage + "%")
+                    .html(percentage + '%');
         }
 
         function stopSync(btn, i, form) {
             $(btn).addClass('btn-danger');
             $(i).removeClass('fa-send');
             $(i).addClass('fa-stop');
-            $(form).attr("data-operation", "1");
+            $(form).attr('data-operation', '1');
             stop = true;
         }
 
         function startSync(btn, i, form) {
             $(btn).removeClass('btn-danger');
             $(i).addClass('fa-send');
-            $(form).attr("data-operation", "0");
+            $(form).attr('data-operation', '0');
             stop = false;
+        }
+        function message(status, message) {
+            messageText.html(message);
+            messageBox.show(500);
+            messageBox.addClass(status ? 'alert-success' : 'alert-danger');
         }
     });
 </script>

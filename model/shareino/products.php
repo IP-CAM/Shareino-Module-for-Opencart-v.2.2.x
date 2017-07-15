@@ -3,106 +3,71 @@
 class ModelShareinoProducts extends Model
 {
 
-    protected function array_pluck($array, $column_name)
+    public function getCount()
     {
-        if (function_exists('array_column')) {
-            return array_column($array, $column_name);
-        }
-
-        return array_map(function($element) use($column_name) {
-            return $element[$column_name];
-        }, $array);
-    }
-
-    public function getAllIdes()
-    {
-        /*
-         * تمام ایدی های محصولات را استخراج میکند
-         * کاربرد ان برای ارسال کالاها با جیسون میباشد
-         */
-
-        /*
-         * SELECT * FROM oc_product WHERE ( oc_product.product_id NOT IN( SELECT oc_shareino_synchronize.product_id FROM oc_shareino_synchronize ) OR oc_product.date_modified NOT IN( SELECT oc_shareino_synchronize.date_modified FROM oc_shareino_synchronize ) ) AND oc_product.status = 1
-         */
         $product = DB_PREFIX . "product";
         $synchronize = DB_PREFIX . "shareino_synchronize";
 
-        $result = $this->db->query("SELECT COUNT(*) AS 'count' FROM $synchronize");
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE $product.product_id "
+            . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+            . "OR $product.date_modified "
+            . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize)");
 
-        if (!$result->row['count']) {
-            $query = $this->db->query("SELECT `product_id` FROM $product"); //WHERE `status`=1");
-        } else {
-            $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
-                . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
-                . "OR $product.date_modified "
-                . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize)"); //AND $product.status =1");
+        if ($query->rows > 0) {
+            return $query->rows[0]['total'];
         }
+        return 0;
+    }
+
+    public function getIdes($limit, $pageNumber)
+    {
+        $product = DB_PREFIX . "product";
+        $synchronize = DB_PREFIX . "shareino_synchronize";
+        $offset = ($pageNumber - 1) * $limit;
+
+        $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
+            . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+            . "OR $product.date_modified "
+            . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize) "
+            . "LIMIT $limit OFFSET $offset");
+
         if ($query->rows > 0) {
             return $this->array_pluck($query->rows, 'product_id');
         }
         return false;
     }
 
-    public function getAllProducts($productIds = array(), $type = 0)
+    public function products($ids = array())
     {
         $this->load->model('catalog/product');
-        if ($type) {
-            /*
-             * لیست  پنجاه عدد کالایی رو که هربار میخواهیم ارسال کنیم استخراج میکنید
-             */
-            $productsArray = array();
-            foreach ($productIds as $value) {
-                $product = $this->model_catalog_product->getProduct($value);
-                $productsArray[] = $this->getProductDetail($product);
-            }
-        } else {
-            /*
-             * لیست تمام محصولات یک فروشگاه را استخراج میکند
-             */
-            $products = $this->model_catalog_product->getProducts(); //array("filter_status" => 1)
-            $productsArray = array();
-            foreach ($products as $product) {
-                $productsArray[] = $this->getProductDetail($product);
-            }
+
+        $products = array();
+        foreach ($ids as $id) {
+            $products[] = $this->getProductDetail($this->model_catalog_product->getProduct($id));
         }
-        return $productsArray;
+
+        return $products;
     }
 
-    function getProduct($id)
-    {
-        /*
-         * فقط یک محصول را استخراج میکند
-         */
-        $this->load->model('catalog/product');
-        $this->load->model('catalog/attribute');
-
-        $product = $this->model_catalog_product->getProduct($id);
-        return $this->getProductDetail($product);
-    }
-
-    function getProductDetail($product)
+    protected function getProductDetail($product)
     {
         if ($product == null) {
             return array();
         }
-        $productId = $product['product_id'];
 
-        /*
-         * مدل های سیستم
-         */
         $this->load->model('setting/setting');
+        $website = $this->config->get('config_url') ?
+            $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
+
+
+        $productId = $product['product_id'];
         $this->load->model('catalog/product');
         $this->load->model('catalog/attribute');
         $this->load->model('catalog/category');
 
-        /*
-         * هنگام سازی محصولات
-         */
         $this->load->model('shareino/synchronize');
         $this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
 
-
-        //چک کردن کالا برای  تخفیف
         $product_specials = $this->model_catalog_product->getProductSpecials($productId);
         $product_discounts = $this->model_catalog_product->getProductDiscounts($productId);
 
@@ -112,8 +77,8 @@ class ModelShareinoProducts extends Model
                 if (($product_special['date_start'] == '0000-00-00' || strtotime($product_special['date_start']) < time()) && ($product_special['date_end'] == '0000-00-00' || strtotime($product_special['date_end']) > time())) {
                     $listDiscounts[] = array(
                         'amount' => $product['price'] - $product_special['price'],
-                        'start_date' => $product_special['date_start'] . ' 00:00:00',
-                        'end_date' => $product_special['date_end'] . ' 00:00:00',
+                        'start_date' => $product_special['date_start'],
+                        'end_date' => $product_special['date_end'],
                         'quantity' => 1,
                         'type' => 0
                     );
@@ -127,8 +92,8 @@ class ModelShareinoProducts extends Model
                 if (($product_discount['date_start'] == '0000-00-00' || strtotime($product_discount['date_start']) < time()) && ($product_discount['date_end'] == '0000-00-00' || strtotime($product_discount['date_end']) > time())) {
                     $listDiscounts[] = array(
                         'amount' => $product['price'] - $product_discount['price'],
-                        'start_date' => $product_discount['date_start'] . ' 00:00:00',
-                        'end_date' => $product_discount['date_end'] . ' 00:00:00',
+                        'start_date' => $product_discount['date_start'],
+                        'end_date' => $product_discount['date_end'],
                         'quantity' => $product_discount['quantity'],
                         'type' => 0
                     );
@@ -136,20 +101,14 @@ class ModelShareinoProducts extends Model
             }
         }
 
-        /*
-         * دریافت همه تصاویر یک کالا
-         */
         $images = $this->model_catalog_product->getProductImages($productId);
         $productImages = array();
         foreach ($images as $image) {
             if ($image['image']) {
-                $productImages[] = $this->config->get('config_url') . 'image/' . $image['image'];
+                $productImages[] = $website . 'image/' . $image['image'];
             }
         }
 
-        /*
-         * دریافت خصوصیات یک کالا
-         */
         $attributesValues = $this->model_catalog_product->getProductAttributes($productId);
         $attributes = array();
 
@@ -161,9 +120,6 @@ class ModelShareinoProducts extends Model
             );
         }
 
-        /*
-         * ساختار ارسالی به شرینو
-         */
         $productDetail = array(
             'name' => $product['name'],
             'code' => $product['product_id'],
@@ -174,7 +130,7 @@ class ModelShareinoProducts extends Model
             'discount' => $listDiscounts,
             'quantity' => $product['quantity'],
             'weight' => $product['weight'],
-            'original_url' => $this->config->get('config_url') . 'index.php?route=product/product&product_id=' . $product['product_id'],
+            'original_url' => $website . 'index.php?route=product/product&product_id=' . $product['product_id'],
             'brand_id' => '',
             'categories' => $this->model_catalog_product->getProductCategories($productId),
             'short_content' => '',
@@ -182,7 +138,7 @@ class ModelShareinoProducts extends Model
             'meta_keywords' => $product['meta_keyword'],
             'meta_description' => $product['meta_description'],
             'meta_title' => $product['meta_title'],
-            'image' => $this->config->get('config_url') . 'image/' . $product['image'],
+            'image' => $product['image'] ? $website . 'image/' . $product['image'] : '',
             'images' => $productImages,
             'attributes' => $attributes,
             'tags' => explode(',', $product['tag']),
@@ -190,6 +146,17 @@ class ModelShareinoProducts extends Model
             'out_of_stock' => 0
         );
         return $productDetail;
+    }
+
+    protected function array_pluck($array, $column_name)
+    {
+        if (function_exists('array_column')) {
+            return array_column($array, $column_name);
+        }
+
+        return array_map(function($element) use($column_name) {
+            return $element[$column_name];
+        }, $array);
     }
 
 }
