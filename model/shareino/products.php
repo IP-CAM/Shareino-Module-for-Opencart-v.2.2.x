@@ -120,6 +120,38 @@ class ModelShareinoProducts extends Model
             );
         }
 
+        $variants = array();
+        $contents = $this->model_catalog_product->getProductOptions($productId);
+        foreach ($contents as $content) {
+            if (($content['type'] !== 'select') && ($content['type'] !== 'radio')) {
+                continue;
+            }
+
+            foreach ($content['product_option_value'] as $i => $value) {
+                $productOptionValue = $this->model_catalog_product->getProductOptionValue($productId, $value['product_option_value_id']);
+
+                $price = $product['price'] + $value['price'];
+                if ($value['price_prefix'] === '-') {
+                    $price = $product['price'] - $value['price'];
+                }
+
+                $variants [$value['option_value_id']] = array(
+                    'variation' => array(
+                        $productOptionValue['name'] => array(
+                            'label' => $content['name'],
+                            'value' => $productOptionValue['name']
+                        )
+                    ),
+                    'code' => $productId,
+                    'default_value' => $i === 0 ? '1' : '0',
+                    'quantity' => $value['quantity'],
+                    'price' => $price,
+                    'discount' => array()
+                );
+            }
+            break;
+        }
+
         $productDetail = array(
             'name' => $product['name'],
             'code' => $product['product_id'],
@@ -143,7 +175,8 @@ class ModelShareinoProducts extends Model
             'attributes' => $attributes,
             'tags' => explode(',', $product['tag']),
             'available_for_order' => 1,
-            'out_of_stock' => 0
+            'out_of_stock' => 0,
+            'variants' => $variants
         );
         return $productDetail;
     }
