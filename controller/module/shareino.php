@@ -134,7 +134,6 @@ class ControllerModuleShareino extends Controller
          */
         if (isset($this->request->post['pageNumber'])) {
 
-            $pagenumber = $this->request->post['pageNumber'];
             $limit = $this->request->post['split'];
 
             $this->response->addHeader('Content-Type: application/json');
@@ -142,8 +141,16 @@ class ControllerModuleShareino extends Controller
             $this->load->model('shareino/products');
             $this->load->model('shareino/requset');
 
-            $products = $this->model_shareino_products->products($this->model_shareino_products->getIdes($limit, $pagenumber));
-            $response = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
+            $response = json_encode(array('status' => true, 'code' => 200, 'message' => 'فرایند ارسال محصولات به طول می انجامد لطفا صبور باشید.'));
+
+            $products = array();
+            if ($this->model_shareino_products->getIdes($limit)) {
+                $products = $this->model_shareino_products->products($this->model_shareino_products->getIdes($limit));
+            }
+
+            if (!empty($products)) {
+                $response = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
+            }
 
             $this->response->setOutput(json_encode($response));
         }

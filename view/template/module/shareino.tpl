@@ -138,7 +138,7 @@
 
         var split = 50;
         var pageNumber = 1;
-        var countProduct = <?php echo $countProduct;?>;
+        var countProduct = <?php echo $countProduct;?>;;
         var pageCount = Math.ceil(countProduct / split);
         var progress = $("#progress");
         var submitProgress = $("#sync-progress");
@@ -192,7 +192,6 @@
                             }
                         } else {
                             setPercentage();
-                            pageNumber++;
                             SyncProducts();
                         }
                     },
@@ -201,6 +200,7 @@
                     }
                 });
             }
+            pageNumber++;
         }
 
         function setPercentage() {

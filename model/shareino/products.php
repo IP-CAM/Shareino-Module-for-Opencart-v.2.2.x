@@ -19,17 +19,16 @@ class ModelShareinoProducts extends Model
         return 0;
     }
 
-    public function getIdes($limit, $pageNumber)
+    public function getIdes($limit)
     {
         $product = DB_PREFIX . "product";
         $synchronize = DB_PREFIX . "shareino_synchronize";
-        $offset = ($pageNumber - 1) * $limit;
 
         $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
             . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
             . "OR $product.date_modified "
             . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize) "
-            . "LIMIT $limit OFFSET $offset");
+            . "LIMIT $limit");
 
         if ($query->rows > 0) {
             return $this->array_pluck($query->rows, 'product_id');

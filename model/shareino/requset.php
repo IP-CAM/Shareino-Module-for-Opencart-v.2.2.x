@@ -4,7 +4,7 @@ class ModelShareinoRequset extends Model
 {
 
     const SHAREINO_API_URL = 'https://shareino.ir/api/v1/public/';
-    const Version = '1.2.8';
+    const Version = '1.2.9';
 
     public function sendRequset($url, $body, $method)
     {
@@ -58,6 +58,7 @@ class ModelShareinoRequset extends Model
                 case 408:
                     return array('status' => false, 'message' => 'خطا! درخواست منقضی شد.');
                 case 429:
+                case 0:
                     return array('status' => false, 'code' => 429, 'message' => 'فرایند ارسال محصولات به طول می انجامد لطفا صبور باشید.');
                 default:
                     return array('status' => false, 'message' => "error: $httpcode");
