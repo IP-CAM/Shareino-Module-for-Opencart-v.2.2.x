@@ -57,7 +57,7 @@
                             </select>
                         </div>
                         <div class="col-sm-1">
-                            <button id="state-btn-product" type="submit" class="btn btn-primary"><i id="state-icon-product" class="fa fa-send"></i></button>
+                            <button type="submit" class="btn btn-primary"><i id="state-icon-product" class="fa fa-save"></i></button>
                         </div>
                     </form>
                 </div>
