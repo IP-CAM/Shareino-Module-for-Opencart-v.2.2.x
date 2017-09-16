@@ -88,6 +88,7 @@ class ControllerModuleShareino extends Controller
                 $this->model_setting_setting->editSetting('shareino', $shareino);
 
                 $data['error_warning'] = $this->language->get('shareino_api_token_save');
+                $this->response->redirect($this->url->link('module/shareino', 'token=' . $this->session->data['token'], true));
             } else {
                 $data['error_warning'] = $this->language->get('shareino_api_token_error');
             }
@@ -102,6 +103,7 @@ class ControllerModuleShareino extends Controller
                 'shareino_out_of_stock' => $this->request->post['shareino_out_of_stock']
             );
             $this->model_setting_setting->editSetting('shareino', $shareino);
+            $this->response->redirect($this->url->link('module/shareino', 'token=' . $this->session->data['token'], true));
         }
         /*
          * return to view
