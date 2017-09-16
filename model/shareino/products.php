@@ -143,12 +143,38 @@ class ModelShareinoProducts extends Model
                     ),
                     'code' => $productId,
                     'default_value' => $i === 0 ? '1' : '0',
-                    'quantity' => $value['quantity'],
+                    'quantity' => $product['quantity'],
                     'price' => $price,
                     'discount' => array()
                 );
             }
             break;
+        }
+
+        $options = array();
+        foreach ($contents as $content) {
+            foreach ($content['product_option_value'] as $i => $value) {
+                $productOptionValue = $this->model_catalog_product->getProductOptionValue($productId, $value['product_option_value_id']);
+
+                $price = $product['price'] + $value['price'];
+                if ($value['price_prefix'] === '-') {
+                    $price = $product['price'] - $value['price'];
+                }
+
+                $options [$value['option_value_id']] = array(
+                    'variation' => array(
+                        $productOptionValue['name'] => array(
+                            'label' => $content['name'],
+                            'value' => $productOptionValue['name']
+                        )
+                    ),
+                    'code' => $productId,
+                    'default_value' => $i === 0 ? '1' : '0',
+                    'quantity' => $value['quantity'],
+                    'price' => $price,
+                    'discount' => array()
+                );
+            }
         }
 
         $productDetail = array(
@@ -174,8 +200,9 @@ class ModelShareinoProducts extends Model
             'attributes' => $attributes,
             'tags' => explode(',', $product['tag']),
             'available_for_order' => 1,
-            'out_of_stock' => 0,
-            'variants' => $variants
+            'out_of_stock' => $this->config->get('shareino_out_of_stock'),
+            'variants' => $variants,
+            'options' => $options
         );
         return $productDetail;
     }

@@ -31,8 +31,9 @@ class ControllerModuleShareino extends Controller
          * Default value
          */
         $shareino = array(
-            'shareino_category' => 0,
-            'shareino_api_token' => $this->config->get('shareino_api_token')
+            'shareino_category' => $this->config->get('shareino_category'),
+            'shareino_api_token' => $this->config->get('shareino_api_token'),
+            'shareino_out_of_stock' => $this->config->get('shareino_out_of_stock')
         );
         $this->model_setting_setting->editSetting('shareino', $shareino);
 
@@ -79,9 +80,13 @@ class ControllerModuleShareino extends Controller
         $data['shareino_api_token'] = '';
         if (isset($this->request->post['shareino_api_token'])) {
             if (strlen($this->request->post['shareino_api_token']) > 3) {
-                $data['shareino_api_token'] = $this->request->post['shareino_api_token'];
-                $this->request->post['shareino_category'] = 0;
-                $this->model_setting_setting->editSetting('shareino', $this->request->post);
+                $shareino = array(
+                    'shareino_category' => $this->config->get('shareino_category'),
+                    'shareino_api_token' => $this->request->post['shareino_api_token'],
+                    'shareino_out_of_stock' => $this->config->get('shareino_out_of_stock')
+                );
+                $this->model_setting_setting->editSetting('shareino', $shareino);
+
                 $data['error_warning'] = $this->language->get('shareino_api_token_save');
             } else {
                 $data['error_warning'] = $this->language->get('shareino_api_token_error');
@@ -90,11 +95,20 @@ class ControllerModuleShareino extends Controller
             $data['shareino_api_token'] = $this->config->get('shareino_api_token');
         }
 
+        if (isset($this->request->post['shareino_out_of_stock'])) {
+            $shareino = array(
+                'shareino_category' => $this->config->get('shareino_category'),
+                'shareino_api_token' => $this->config->get('shareino_api_token'),
+                'shareino_out_of_stock' => $this->request->post['shareino_out_of_stock']
+            );
+            $this->model_setting_setting->editSetting('shareino', $shareino);
+        }
         /*
          * return to view
          */
         $this->destroyProducts();
         $data['countProduct'] = $this->model_shareino_products->getCount();
+        $data['shareino_out_of_stock'] = $this->config->get('shareino_out_of_stock');
         $this->response->setOutput($this->load->view('module/shareino.tpl', $data));
     }
 
@@ -103,7 +117,8 @@ class ControllerModuleShareino extends Controller
         $this->load->model('setting/setting');
         $shareino = array(
             'shareino_category' => 1,
-            'shareino_api_token' => $this->config->get('shareino_api_token')
+            'shareino_api_token' => $this->config->get('shareino_api_token'),
+            'shareino_out_of_stock' => $this->config->get('shareino_out_of_stock')
         );
         $this->model_setting_setting->editSetting('shareino', $shareino);
 
