@@ -117,6 +117,11 @@ class ControllerModuleShareino extends Controller
         $this->destroyProducts();
         $data['countProduct'] = $this->model_shareino_products->getCount();
         $data['shareino_out_of_stock'] = $this->config->get('shareino_out_of_stock');
+
+        $website = $this->config->get('config_url') ?
+            $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
+
+        $data['shareino_token_frontend'] = '"' . $website . 'index.php?route=module/shareino&key=' . $this->config->get('shareino_token_frontend') . '"';
         $this->response->setOutput($this->load->view('module/shareino.tpl', $data));
     }
 
