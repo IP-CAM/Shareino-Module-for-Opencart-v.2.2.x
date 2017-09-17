@@ -112,10 +112,11 @@
                     </form>
                 </div>
             </div><!-- ./token  -->
+            <hr/>
             <div class="panel-body">
                 <div class="form-group">
                     <form action="<?php echo $action; ?>" method="post" class="form-horizontal shareino-form-token" id="shareino_api_token" data-token="<?php echo $token ?>">
-                        <label class="col-sm-2 control-label" for="input-name">لینک کرون جاب</label>
+                        <label class="col-sm-2 control-label" for="input-name">دستور کرون جاب</label>
                         <div class="col-sm-10">
                             <input type="text"  dir="ltr" value='/usr/bin/wget -O - -q <?php echo $shareino_token_frontend ?>' class="form-control" readonly="true"/>
                         </div>
