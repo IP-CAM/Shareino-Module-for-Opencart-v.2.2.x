@@ -20,7 +20,7 @@ class ControllerModuleShareino extends Controller
             . "OR $product.date_modified "
             . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize) LIMIT " . self::SIZE);
 
-        // No Item Finde
+        // No item found
         if ($query->num_rows === 0) {
             return;
         }
