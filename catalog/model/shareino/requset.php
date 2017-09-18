@@ -47,9 +47,13 @@ class ModelShareinoRequset extends Model
             // Get Header Response header
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
-        }
 
-        return $httpcode;
+            if ($httpcode != 200) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     public function deleteProducts($ids, $all = false)

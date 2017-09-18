@@ -8,9 +8,11 @@ class ControllerModuleShareino extends Controller
     public function index()
     {
         // Load Model
-        $this->load->model('shareino/requset');
         $this->load->model('setting/setting');
+        $this->load->model('catalog/product');
+        $this->load->model('shareino/requset');
         $this->load->model('shareino/products');
+        $this->load->model('shareino/synchronize');
 
         // DB
         $product = DB_PREFIX . "product";
@@ -38,7 +40,15 @@ class ControllerModuleShareino extends Controller
         $products = $this->model_shareino_products->products($ids);
 
         // Send To SHAREINO
-        $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
+        $result = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
+
+        //
+        if ($result) {
+            foreach ($ids as $id) {
+                $product = $this->model_catalog_product->getProduct($id);
+                $this->model_shareino_synchronize->synchronize($id, $product['date_modified']);
+            }
+        }
     }
 
     protected function array_pluck($array, $column_name)

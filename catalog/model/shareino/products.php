@@ -26,13 +26,13 @@ class ModelShareinoProducts extends Model
 
         $productId = $product['product_id'];
 
-        $this->load->model('shareino/synchronize');
+        //$this->load->model('shareino/synchronize');
         $this->load->model('shareino/attribute');
         $this->load->model('catalog/category');
 
         $product_specials = $this->getProductSpecials($productId);
         $product_discounts = $this->getProductDiscounts($productId);
-        $this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
+        //$this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
 
         $listDiscounts = array();
         if ($product_specials) {
