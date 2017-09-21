@@ -5,6 +5,16 @@ class ControllerModuleShareino extends Controller
 
     public function install()
     {
+        if (!function_exists('random_bytes')) {
+
+            function random_bytes($length)
+            {
+                $str = 'ABCDEFGHIJKLMNOPQRSTUWXYZ0123456789abcdefghijklmnopqrstuwxyz';
+                return substr(str_shuffle($str), 0, $length);
+            }
+
+        }
+
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "shareino_synchronize` (
             `id` BIGINT NOT NULL AUTO_INCREMENT,
             `product_id` BIGINT NOT NULL,
@@ -93,7 +103,7 @@ class ControllerModuleShareino extends Controller
                 $this->model_setting_setting->editSetting('shareino', $shareino);
 
                 $data['error_warning'] = $this->language->get('shareino_api_token_save');
-                $this->response->redirect($this->url->link('module/shareino', 'token=' . $this->session->data['token'], true));
+                //$this->response->redirect($this->url->link('module/shareino', 'token=' . $this->session->data['token'], true));
             } else {
                 $data['error_warning'] = $this->language->get('shareino_api_token_error');
             }
@@ -109,7 +119,7 @@ class ControllerModuleShareino extends Controller
                 'shareino_token_frontend' => $this->config->get('shareino_token_frontend')
             );
             $this->model_setting_setting->editSetting('shareino', $shareino);
-            $this->response->redirect($this->url->link('module/shareino', 'token=' . $this->session->data['token'], true));
+            //$this->response->redirect($this->url->link('module/shareino', 'token=' . $this->session->data['token'], false));
         }
         /*
          * return to view
