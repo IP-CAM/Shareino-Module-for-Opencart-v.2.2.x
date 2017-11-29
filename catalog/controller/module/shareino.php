@@ -39,6 +39,10 @@ class ControllerModuleShareino extends Controller
         // Get JSON
         $products = $this->model_shareino_products->products($ids);
 
+        if (empty($products)) {
+            return;
+        }
+
         // Send To SHAREINO
         $result = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
 
