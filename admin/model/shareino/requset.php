@@ -50,7 +50,7 @@ class ModelShareinoRequset extends Model
 
             switch ($httpcode) {
                 case 200:
-                    return array('status' => true, 'message' => 'ارسال به شرینو با موفقیت انجام شد.');
+                    return array('status' => true, 'message' => 'ارسال به دکمه با موفقیت انجام شد.');
                 case 401:
                     return array('status' => false, 'message' => 'خطا! توکن وارد شده معتبر نمیباشد.');
                 case 403:
@@ -65,7 +65,7 @@ class ModelShareinoRequset extends Model
             }
         }
 
-        return array('status' => false, 'message' => 'ابتدا توکن را از سرور شرینو دریافت کنید');
+        return array('status' => false, 'message' => 'ابتدا توکن را از سرور دکمه دریافت کنید');
     }
 
     public function deleteProducts($ids, $all = false)

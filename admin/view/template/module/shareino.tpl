@@ -28,20 +28,20 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-pencil"></i>تنظیمات ماژول شرینو</h3>
+                <h3 class="panel-title"><i class="fa fa-pencil"></i>تنظیمات ماژول دکمه</h3>
             </div>
             <div class="panel-body">
                 <div class="form-group">
                     <div class="col-sm-8">
                         <ul>
-                            <li>ابتدا توکن خود را از سایت <a href="https://www.ShareINO.ir" target="_blank" title="شرینو - شبکه اجتماعی خرید">شرینو</a> دریافت کنید.</li>
+                            <li>ابتدا توکن خود را از سایت <a href="https://dokme.com" target="_blank" title="دکمه - شبکه اجتماعی خرید">دکمه</a> دریافت کنید.</li>
                             <li>در صورت بروز هر گونه خطا ابتدا از صحت توکن خود اطمینان حاصل کنید</li>
-                            <li>کالاهای شما بعد از دریافت تصاویر در سایت شرینو قابل مشاهده میباشند</li>
+                            <li>کالاهای شما بعد از دریافت تصاویر در سایت دکمه قابل مشاهده میباشند</li>
                             <li>در صورت بروز هر گونه مشکل یا ابهامی می‌توانید با کارشناسان ما در ارتباط باشید</li>
                         </ul>
                     </div>
                     <div class="col-sm-4">
-                        <a href="https://www.ShareINO.ir" target="_blank" title="شرینو -شبکه اجتماعی خرید"><img class="logo" src="view/image/shareino-logo.png" alt="شرینو - شبکه اجتماعی خرید" /></a>
+                        <a href="https://dokme.com" target="_blank" title="دکمه -شبکه اجتماعی خرید"><img class="logo" src="view/image/dokme-logo.png" alt="دکمه - شبکه اجتماعی خرید" /></a>
                     </div>
                 </div>
             </div> <!-- ./ShareINO  -->
@@ -68,7 +68,7 @@
                     <form action="<?php echo $action; ?>" method="post" class="form-horizontal sync-products" data-token="<?php echo $token ?>" data-operation="0">
                         <label class="col-sm-2 control-label" for="input-name">ارسال کالا ها</label>
                         <div class="col-sm-9">
-                            <p class="shareino-text">اگر اولین بار میباشد که ماژول را نصب کرده اید یا اینکه کالاهای سایت خود را تغییر داده اید آن را برای شرینو ارسال کنید</p>
+                            <p class="shareino-text">اگر اولین بار میباشد که ماژول را نصب کرده اید یا اینکه کالاهای سایت خود را تغییر داده اید آن را برای دکمه ارسال کنید</p>
                         </div>
                         <div class="col-sm-1">
                             <button id="state-btn-product" type="submit" class="btn btn-primary" title="ارسال کالا های سایت شما"><i id="state-icon-product" class="fa fa-send"></i></button>
@@ -90,7 +90,7 @@
                     <form action="<?php echo $action; ?>" method="post" class="form-horizontal sync-category"  data-token="<?php echo $token ?>" data-operation="0">
                         <label class="col-sm-2 control-label" for="input-name">ارسال دسته بندی ها</label>
                         <div class="col-sm-9">
-                            <p class="shareino-text">اگر اولین بار میباشد که ماژول را نصب کرده اید یا اینکه دسته بندی های سایت خود را تغییر داده اید آن را برای شرینو ارسال کنید</p>
+                            <p class="shareino-text">اگر اولین بار میباشد که ماژول را نصب کرده اید یا اینکه دسته بندی های سایت خود را تغییر داده اید آن را برای دکمه ارسال کنید</p>
                         </div>
                         <div class="col-sm-1">
                             <button  id="state-btn-category" type="submit" class="btn btn-primary" title="ارسال دسته بندی های سایت شما"><i id="state-icon-category" class="fa fa-send"></i></button>
@@ -102,9 +102,9 @@
             <div class="panel-body">
                 <div class="form-group">
                     <form action="<?php echo $action; ?>" method="post" class="form-horizontal shareino-form-token" id="shareino_api_token" data-token="<?php echo $token ?>">
-                        <label class="col-sm-2 control-label" for="input-name">توکن دریافتی از شرینو</label>
+                        <label class="col-sm-2 control-label" for="input-name">توکن دریافتی از دکمه</label>
                         <div class="col-sm-9">
-                            <input type="text" id="shareino_api_token" name="shareino_api_token" value="<?php echo $shareino_api_token; ?>" placeholder="توکن فروشگاهی خود در سایت شرینو را در اینجا وارد کنید." class="form-control"/>
+                            <input type="text" id="shareino_api_token" name="shareino_api_token" value="<?php echo $shareino_api_token; ?>" placeholder="توکن فروشگاهی خود در سایت دکمه را در اینجا وارد کنید." class="form-control"/>
                         </div>
                         <div class="col-sm-1">
                             <button type="submit" class="btn btn-primary" title="ذخیره توکن"><i class="fa fa-save"></i></button>
@@ -189,7 +189,7 @@
             }
 
             if (pageNumber > pageCount) {
-                message(true, 'همه محصولات به سایت شرینو ارسال شد.');
+                message(true, 'همه محصولات به سایت دکمه ارسال شد.');
                 startSync('#state-btn-product', '#state-icon-product', '.sync-products');
                 return;
             }
