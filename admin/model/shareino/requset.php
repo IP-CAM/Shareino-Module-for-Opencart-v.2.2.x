@@ -3,8 +3,8 @@
 class ModelShareinoRequset extends Model
 {
 
-    const SHAREINO_API_URL = 'https://shareino.ir/api/v1/public/';
-    const Version = '1.2.13';
+    const SHAREINO_API_URL = 'https://dokme.com/api/v1/public/';
+    const Version = '1.2.14';
 
     public function sendRequset($url, $body, $method)
     {
