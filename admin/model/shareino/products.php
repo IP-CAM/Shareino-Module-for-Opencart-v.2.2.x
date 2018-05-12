@@ -5,13 +5,28 @@ class ModelShareinoProducts extends Model
 
     public function getCount()
     {
+        $this->load->model('catalog/product');
+        $this->load->model('setting/setting');
+
         $product = DB_PREFIX . "product";
         $synchronize = DB_PREFIX . "shareino_synchronize";
+        $selectedCategories = $this->config->get('shareino_selected_categories');
 
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE $product.product_id "
+        $query = $this->db->query("SELECT `product_id` FROM $product WHERE $product.product_id "
             . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
             . "OR $product.date_modified "
             . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize)");
+
+        if (!empty($selectedCategories)) {
+            $count = 0;
+            foreach ($query->rows as $row) {
+                $productCategories = $this->model_catalog_product->getProductCategories($row['product_id']);
+                if (!empty(array_intersect($selectedCategories, $productCategories))) {
+                    ++$count;
+                }
+            }
+            return $count;
+        }
 
         if ($query->rows > 0) {
             return $query->rows[0]['total'];
@@ -21,8 +36,12 @@ class ModelShareinoProducts extends Model
 
     public function getIdes($limit)
     {
+        $this->load->model('catalog/product');
+        $this->load->model('setting/setting');
+
         $product = DB_PREFIX . "product";
         $synchronize = DB_PREFIX . "shareino_synchronize";
+        $selectedCategories = $this->config->get('shareino_selected_categories');
 
         $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
             . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
@@ -31,7 +50,16 @@ class ModelShareinoProducts extends Model
             . "LIMIT $limit");
 
         if ($query->rows > 0) {
-            return $this->array_pluck($query->rows, 'product_id');
+            $rows = $query->rows;
+            if (!empty($selectedCategories)) {
+                foreach ($rows as $i => $row) {
+                    $productCategories = $this->model_catalog_product->getProductCategories($row['product_id']);
+                    if (empty(array_intersect($selectedCategories, $productCategories))) {
+                        unset($rows[$i]);
+                    }
+                }
+            }
+            return $this->array_pluck($rows, 'product_id');
         }
         return false;
     }
@@ -57,13 +85,12 @@ class ModelShareinoProducts extends Model
         if ($product == null) {
             return null;
         }
-
+        $productId = $product['product_id'];
         $this->load->model('setting/setting');
         $website = $this->config->get('config_url') ?
             $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
 
 
-        $productId = $product['product_id'];
         $this->load->model('catalog/product');
         $this->load->model('catalog/attribute');
         $this->load->model('catalog/category');
@@ -217,9 +244,22 @@ class ModelShareinoProducts extends Model
             return array_column($array, $column_name);
         }
 
-        return array_map(function($element) use($column_name) {
+        return array_map(function ($element) use ($column_name) {
             return $element[$column_name];
         }, $array);
     }
 
+    protected function _selectedCategory($ids)
+    {
+        $this->load->model('setting/setting');
+        $categories = $this->config->get('shareino_selected_categories');
+
+        if (empty($categories)) {
+            return false;
+        }
+
+        if (empty($ids)) {
+            return false;
+        }
+    }
 }

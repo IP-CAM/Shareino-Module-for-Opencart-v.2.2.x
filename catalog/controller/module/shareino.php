@@ -34,7 +34,18 @@ class ControllerModuleShareino extends Controller
         }
 
         // Selected Products Id
-        $ids = $this->array_pluck($query->rows, 'product_id');
+        $selectedCategories = $this->config->get('shareino_selected_categories');
+        $rows = $query->rows;
+
+        if (!empty($selectedCategories)) {
+            foreach ($rows as $i => $row) {
+                $productCategories = $this->getProductCategories($row['product_id']);
+                if (empty(array_intersect($selectedCategories, $productCategories))) {
+                    unset($rows[$i]);
+                }
+            }
+        }
+        $ids = $this->array_pluck($rows, 'product_id');
 
         // Get JSON
         $products = $this->model_shareino_products->products($ids);
@@ -61,7 +72,7 @@ class ControllerModuleShareino extends Controller
             return array_column($array, $column_name);
         }
 
-        return array_map(function($element) use($column_name) {
+        return array_map(function ($element) use ($column_name) {
             return $element[$column_name];
         }, $array);
     }
@@ -85,6 +96,19 @@ class ControllerModuleShareino extends Controller
             }
         }
         return false;
+    }
+
+    private function getProductCategories($product_id)
+    {
+        $product_category_data = array();
+
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
+
+        foreach ($query->rows as $result) {
+            $product_category_data[] = $result['category_id'];
+        }
+
+        return $product_category_data;
     }
 
 }
