@@ -16,21 +16,21 @@ class ModelShareinoSynchronize extends Model
 
     public function synchronize($productId, $modified)
     {
-//        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "shareino_synchronize` WHERE `product_id`=$productId");
-//
-//        if ($query->num_rows > 0) {
-//            $result = $query->row['id'];
-//
-//            $this->db->query("UPDATE `" . DB_PREFIX . "shareino_synchronize` SET "
-//                . "`date_sync`='" . date("Y-m-d H:i:s") . "',"
-//                . "`date_modified`='$modified' "
-//                . "WHERE `id`=$result");
-//        } else {
-//
-//            $this->db->query("INSERT INTO `" . DB_PREFIX . "shareino_synchronize`"
-//                . " ( `product_id`, `date_sync`, `date_modified`) VALUES "
-//                . " ( '$productId', '" . date("Y-m-d H:i:s") . "',  '$modified')");
-//        }
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "shareino_synchronize` WHERE `product_id`=$productId");
+
+        if ($query->num_rows > 0) {
+            $result = $query->row['id'];
+
+            $this->db->query("UPDATE `" . DB_PREFIX . "shareino_synchronize` SET "
+                . "`date_sync`='" . date("Y-m-d H:i:s") . "',"
+                . "`date_modified`='$modified' "
+                . "WHERE `id`=$result");
+        } else {
+
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "shareino_synchronize`"
+                . " ( `product_id`, `date_sync`, `date_modified`) VALUES "
+                . " ( '$productId', '" . date("Y-m-d H:i:s") . "',  '$modified')");
+        }
     }
 
     public function destroy()
